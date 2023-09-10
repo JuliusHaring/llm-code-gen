@@ -1,4 +1,4 @@
-name: Test CI/CD Setup Action
+name: Test Action
 
 on:
   push:
