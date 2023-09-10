@@ -1,0 +1,5 @@
+[general]
+ignore=T1,T2,T3,T4,T5,T6,T8,B1,B2,B3,B4,B5,B6,B8,M1,I1,I2,I3,I4
+
+[title-match-regex]
+regex=^(build|chore|ci|docs|eda|feat|fix|perf|refactor|revert|style|test)

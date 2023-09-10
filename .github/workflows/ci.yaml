@@ -1,0 +1,36 @@
+name: CI
+
+on: [pull_request]
+
+concurrency: 
+  group: ci-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-format:
+    name: Lint and Format
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    - name: Install dependencies
+      run: |
+        pip install ruff==v0.0.284 black==23.7.0 gitlint-core==0.18.0
+
+    - name: Check formatting with black
+      run: black --check .
+
+    - name: Check linting with ruff
+      run: ruff check .
+
+    - name: Check semantic commits
+      shell: bash
+      run: gitlint --config .gitlint --commits ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}

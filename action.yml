@@ -1,12 +1,12 @@
-name: 'Generate CI/CD Setup'
-description: 'Generates CI/CD files using OpenAI API'
+name: 'Generate Code'
+description: 'Generates files using OpenAI API'
 inputs:
   branch_name:
     description: 'Branch Name'
     required: false
-    default: 'ci-cd-setup'
-  keywords:
-    description: 'Keywords (comma-separated)'
+    default: 'llm-code-gen'
+  descriptions:
+    description: 'Descriptions (comma-separated)'
     required: true
   openai_token:
     description: 'OpenAI API Token'
@@ -18,6 +18,18 @@ inputs:
   github_token:
     description: 'Token to push to the repo.'
     required: true
+  max_tokens:
+    description: 'Maximum tokens for OpenAI API call'
+    required: false
+    default: '300'
+  python_version:
+    description: 'Python version'
+    required: false
+    default: '3.x'
+  python_log_level:
+    description: 'Log level used in the python script'
+    required: true
+    default: 'INFO'
 
 runs:
   using: 'composite'
@@ -28,14 +40,14 @@ runs:
   - name: Set up Python
     uses: actions/setup-python@v4
     with:
-      python-version: '3.x'
+      python-version: ${{ inputs.python_version}}
 
   - name: Install dependencies
     shell: bash
     run: pip install -r requirements.txt
 
-  - name: Generate CI/CD
+  - name: Generate Files
     shell: bash
     env:
       GITHUB_TOKEN: ${{ inputs.github_token }}
-    run: python generate_ci_cd.py --branch_name '${{ inputs.branch_name }}' --keywords '${{ inputs.keywords }}' --openai_token '${{ inputs.openai_token }}' --model_name '${{ inputs.model_name }}'
+    run: python generate_files.py --branch_name '${{ inputs.branch_name }}' --descriptions '${{ inputs.descriptions }}' --openai_token '${{ inputs.openai_token }}' --model_name '${{ inputs.model_name }}' --max_tokens '${{ inputs.max_tokens }}' --log_level '${{ inputs.python_log_level }}'
