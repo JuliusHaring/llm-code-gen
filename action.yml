@@ -1,10 +1,10 @@
-name: 'Generate CI/CD Setup'
-description: 'Generates CI/CD files using OpenAI API'
+name: 'Generate Code'
+description: 'Generates files using OpenAI API'
 inputs:
   branch_name:
     description: 'Branch Name'
     required: false
-    default: 'ci-cd-setup'
+    default: 'llm-code-gen'
   keywords:
     description: 'Keywords (comma-separated)'
     required: true
@@ -34,8 +34,8 @@ runs:
     shell: bash
     run: pip install -r requirements.txt
 
-  - name: Generate CI/CD
+  - name: Generate Files
     shell: bash
     env:
       GITHUB_TOKEN: ${{ inputs.github_token }}
-    run: python generate_ci_cd.py --branch_name '${{ inputs.branch_name }}' --keywords '${{ inputs.keywords }}' --openai_token '${{ inputs.openai_token }}' --model_name '${{ inputs.model_name }}'
+    run: python generate_files.py --branch_name '${{ inputs.branch_name }}' --keywords '${{ inputs.keywords }}' --openai_token '${{ inputs.openai_token }}' --model_name '${{ inputs.model_name }}'
