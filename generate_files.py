@@ -72,9 +72,12 @@ def generate_files(
         ensure_directory(file_path)
 
         prompt_for_content = (
-            f"Generate content for {file_path} with the following descriptions: {file_descriptions}."
-            "Your output will be directly copied to the file, so don't write anything beyond the files content."
+            f"Here is a list of all files to be generated and their requirements: {json.dumps(files_and_requirements)}."
+            f"Create the file at path {file_path} with the following descriptions: {file_descriptions}. "
+            "Only output the content for this specific file."
+            "Your output will be directly copied to the file, so don't write anything beyond the file's content."
         )
+
         file_content = openai_call(
             prompt=prompt_for_content, model_name=model_name, max_tokens=max_tokens
         )
