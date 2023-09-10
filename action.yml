@@ -15,15 +15,18 @@ inputs:
     description: 'Model Name'
     required: false
     default: 'gpt-3.5-turbo-16k-0613'
+  github_token:
+    description: 'Token to push to the repo.'
+    required: true
 
 runs:
   using: 'composite'
   steps:
   - name: Checkout Code
-    uses: actions/checkout@v2
+    uses: actions/checkout@v4
 
   - name: Set up Python
-    uses: actions/setup-python@v2
+    uses: actions/setup-python@v4
     with:
       python-version: '3.x'
 
@@ -33,4 +36,6 @@ runs:
 
   - name: Generate CI/CD
     shell: bash
-    run: python generate_ci_cd.py --branch_name ${{ inputs.branch_name }} --keywords ${{ inputs.keywords }} --openai_token ${{ inputs.openai_token }} --model_name ${{ inputs.model_name }}
+    env:
+      GITHUB_TOKEN: ${{ inputs.github_token }}
+    run: python generate_ci_cd.py --branch_name '${{ inputs.branch_name }}' --keywords '${{ inputs.keywords }}' --openai_token '${{ inputs.openai_token }}' --model_name '${{ inputs.model_name }}'
