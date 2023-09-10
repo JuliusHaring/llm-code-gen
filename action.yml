@@ -18,6 +18,14 @@ inputs:
   github_token:
     description: 'Token to push to the repo.'
     required: true
+  max_tokens:
+    description: 'Maximum tokens for OpenAI API call'
+    required: false
+    default: '300'
+  python_version:
+    description: 'Python version'
+    required: false
+    default: '3.x'
 
 runs:
   using: 'composite'
@@ -28,7 +36,7 @@ runs:
   - name: Set up Python
     uses: actions/setup-python@v4
     with:
-      python-version: '3.x'
+      python-version: ${{ inputs.python_version}}
 
   - name: Install dependencies
     shell: bash
@@ -38,4 +46,4 @@ runs:
     shell: bash
     env:
       GITHUB_TOKEN: ${{ inputs.github_token }}
-    run: python generate_files.py --branch_name '${{ inputs.branch_name }}' --descriptions '${{ inputs.descriptions }}' --openai_token '${{ inputs.openai_token }}' --model_name '${{ inputs.model_name }}'
+    run: python generate_files.py --branch_name '${{ inputs.branch_name }}' --descriptions '${{ inputs.descriptions }}' --openai_token '${{ inputs.openai_token }}' --model_name '${{ inputs.model_name }}' --max_tokens '${{ inputs.max_tokens }}'

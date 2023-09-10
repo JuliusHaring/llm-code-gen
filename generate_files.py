@@ -33,7 +33,13 @@ def openai_call(prompt, model_name, max_tokens=300, role="user"):
     return message_content
 
 
-def generate_files(branch_name, descriptions, openai_token, model_name):
+def generate_files(
+    branch_name: str,
+    descriptions: str,
+    openai_token: str,
+    model_name: str,
+    max_tokens: int,
+):
     openai.api_key = openai_token
 
     prompt_for_files = (
@@ -43,7 +49,11 @@ def generate_files(branch_name, descriptions, openai_token, model_name):
         "(not directories, just paths!) and the values are lists of descriptions."
         "Make sure the output is parseable by Python's json.loads."
     )
-    files_and_requirements = json.loads(openai_call(prompt_for_files, model_name))
+    files_and_requirements = json.loads(
+        openai_call(
+            prompt=prompt_for_files, model_name=model_name, max_tokens=max_tokens
+        )
+    )
     logging.info(f"Generated file and directory requirements: {files_and_requirements}")
 
     repo = Repo(".")
@@ -67,7 +77,9 @@ def generate_files(branch_name, descriptions, openai_token, model_name):
             f"Generate content for {file_path} with the following descriptions: {file_descriptions}."
             "Your output will be directly copied to the file, so don't write anything beyond the files content."
         )
-        file_content = openai_call(prompt_for_content, model_name)
+        file_content = openai_call(
+            prompt=prompt_for_content, model_name=model_name, max_tokens=max_tokens
+        )
         logging.info(f"Generated content for {file_path}.")
 
         with open(file_path, "w") as f:
@@ -91,8 +103,15 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model_name", default="gpt-3.5-turbo-16k-0613", help="OpenAI model name."
     )
+    parser.add_argument(
+        "--max_tokens", default=300, type=int, help="Max tokens for OpenAI API call."
+    )
 
     args = parser.parse_args()
     generate_files(
-        args.branch_name, args.descriptions, args.openai_token, args.model_name
+        branch_name=args.branch_name,
+        descriptions=args.descriptions,
+        openai_token=args.openai_token,
+        model_name=args.model_name,
+        max_tokens=args.max_tokens,
     )
