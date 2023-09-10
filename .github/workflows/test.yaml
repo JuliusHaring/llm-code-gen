@@ -1,0 +1,29 @@
+name: Test CI/CD Setup Action
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Run CI/CD Setup Action
+      uses: ./
+      with:
+        branch_name: 'test-ci-setup'
+        keywords: 'lint python, semantic commits'
+        openai_token: ${{ secrets.OPENAI_API_TOKEN }}
+        model_name: 'text-davinci-004'
