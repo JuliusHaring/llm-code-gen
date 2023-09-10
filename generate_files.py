@@ -6,8 +6,6 @@ import os
 import openai
 from git import Repo
 
-logging.basicConfig(level=logging.INFO)
-
 
 def ensure_directory(file_path):
     directory = os.path.dirname(file_path)
@@ -106,8 +104,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "--max_tokens", default=300, type=int, help="Max tokens for OpenAI API call."
     )
+    parser.add_argument(
+        "--log_level", default="INFO", type=str, help="Set the log level."
+    )
 
     args = parser.parse_args()
+
+    logging.basicConfig(level=args.log_level)
+
     generate_files(
         branch_name=args.branch_name,
         descriptions=args.descriptions,
