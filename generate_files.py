@@ -33,14 +33,14 @@ def openai_call(prompt, model_name, max_tokens=300, role="user"):
     return message_content
 
 
-def generate_ci_cd(branch_name, keywords, openai_token, model_name):
+def generate_files(branch_name, descriptions, openai_token, model_name):
     openai.api_key = openai_token
 
     prompt_for_files = (
         "List the files and their specific directories and requirements for a"
-        f"CI/CD setup with the following keywords: {keywords}."
+        f"production ready codebase using the following descriptions: {descriptions}."
         "Provide the information as a compact, JSON-formatted dictionary where the keys are file paths"
-        "(not directories, just paths!) and the values are lists of keywords."
+        "(not directories, just paths!) and the values are lists of descriptions."
         "Make sure the output is parseable by Python's json.loads."
     )
     files_and_requirements = json.loads(openai_call(prompt_for_files, model_name))
@@ -60,11 +60,11 @@ def generate_ci_cd(branch_name, keywords, openai_token, model_name):
     new_branch.checkout()
     logging.info(f"Checked out new branch: {branch_name}")
 
-    for file_path, file_keywords in files_and_requirements.items():
+    for file_path, file_descriptions in files_and_requirements.items():
         ensure_directory(file_path)
 
         prompt_for_content = (
-            f"Generate content for {file_path} with the following keywords: {file_keywords}."
+            f"Generate content for {file_path} with the following descriptions: {file_descriptions}."
             "Your output will be directly copied to the file, so don't write anything beyond the files content."
         )
         file_content = openai_call(prompt_for_content, model_name)
@@ -80,12 +80,12 @@ def generate_ci_cd(branch_name, keywords, openai_token, model_name):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate CI/CD setup.")
+    parser = argparse.ArgumentParser(description="Generate code using OpenAI API.")
     parser.add_argument(
         "--branch_name", default="ci-cd-setup", help="Name of the new branch."
     )
     parser.add_argument(
-        "--keywords", required=True, help="Keywords to inform the setup."
+        "--descriptions", required=True, help="Descriptions to inform the setup."
     )
     parser.add_argument("--openai_token", required=True, help="OpenAI API Token.")
     parser.add_argument(
@@ -93,4 +93,6 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    generate_ci_cd(args.branch_name, args.keywords, args.openai_token, args.model_name)
+    generate_files(
+        args.branch_name, args.descriptions, args.openai_token, args.model_name
+    )

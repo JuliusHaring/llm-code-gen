@@ -5,8 +5,8 @@ inputs:
     description: 'Branch Name'
     required: false
     default: 'llm-code-gen'
-  keywords:
-    description: 'Keywords (comma-separated)'
+  descriptions:
+    description: 'Descriptions (comma-separated)'
     required: true
   openai_token:
     description: 'OpenAI API Token'
@@ -38,4 +38,4 @@ runs:
     shell: bash
     env:
       GITHUB_TOKEN: ${{ inputs.github_token }}
-    run: python generate_files.py --branch_name '${{ inputs.branch_name }}' --keywords '${{ inputs.keywords }}' --openai_token '${{ inputs.openai_token }}' --model_name '${{ inputs.model_name }}'
+    run: python generate_files.py --branch_name '${{ inputs.branch_name }}' --descriptions '${{ inputs.descriptions }}' --openai_token '${{ inputs.openai_token }}' --model_name '${{ inputs.model_name }}'
