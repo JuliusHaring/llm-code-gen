@@ -1,0 +1,2 @@
+openai==0.28.0
+GitPython==3.1.35

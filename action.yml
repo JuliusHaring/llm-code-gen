@@ -1,0 +1,32 @@
+name: 'Generate CI/CD Setup'
+description: 'Generates CI/CD files using OpenAI API'
+inputs:
+  branch_name:
+    description: 'Branch Name'
+    required: false
+    default: 'ci-cd-setup'
+  keywords:
+    description: 'Keywords (comma-separated)'
+    required: true
+  openai_token:
+    description: 'OpenAI API Token'
+    required: true
+  model_name:
+    description: 'Model Name'
+    required: false
+    default: 'gpt-3.5-turbo-16k-0613'
+
+runs:
+  using: 'composite'
+  steps:
+  - name: Checkout Code
+    uses: actions/checkout@v2
+  - name: Set up Python
+    uses: actions/setup-python@v2
+    with:
+      python-version: '3.x'
+  - name: Install dependencies
+    run: pip install -r requirements.txt
+  - name: Generate CI/CD
+    run: python generate_ci_cd.py --branch_name ${{ inputs.branch_name }} --keywords ${{ inputs.keywords }} --openai_token ${{ inputs.openai_token }} --model_name ${{ inputs.model_name }}
+
