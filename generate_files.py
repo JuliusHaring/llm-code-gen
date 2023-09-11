@@ -52,10 +52,10 @@ def openai_call(prompt, model_name, max_tokens=300):
 def get_file_requirements_dict(descriptions, model_name, max_tokens):
     prompt_for_files = (
         "List the files and their specific directories and requirements for a"
-        f"production ready codebase using the following descriptions: {descriptions}."
+        f"production ready codebase using the following descriptions: '{descriptions}'."
+        "Stick to that description, don't add anything else. Use the minimum amount of required files."
         "Provide the information as a compact, JSON-formatted dictionary where the keys are file paths"
         "(not directories, just paths!) and the values are the descriptions strings."
-        "Make sure the output is parseable by Python's json.loads."
     )
     raw_output = openai_call(prompt_for_files, model_name, max_tokens)
     is_valid, files_and_requirements = validate_dict_output(raw_output)
