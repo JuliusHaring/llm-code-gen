@@ -5,6 +5,10 @@ inputs:
     description: 'Branch Name'
     required: false
     default: 'llm-code-gen'
+  commit_message:
+    description: 'Commit Message'
+    required: false
+    default: 'feat: add llm-generated code'
   descriptions:
     description: 'Descriptions (comma-separated)'
     required: true
@@ -15,9 +19,6 @@ inputs:
     description: 'Model Name'
     required: false
     default: 'gpt-3.5-turbo-16k-0613'
-  github_token:
-    description: 'Token to push to the repo.'
-    required: true
   max_tokens:
     description: 'Maximum tokens for OpenAI API call'
     required: false
@@ -30,6 +31,13 @@ inputs:
     description: 'Log level used in the python script'
     required: true
     default: 'INFO'
+  force_push:
+    description: 'Enable force push to the remote branch'
+    required: false
+    default: 'true'
+
+permissions:
+  workflows: write
 
 runs:
   using: 'composite'
@@ -47,7 +55,21 @@ runs:
     run: pip install -r requirements.txt
 
   - name: Generate Files
+    shell: bash 
+    run: |
+      python generate_files.py --descriptions '${{ inputs.descriptions }}' --openai_token '${{ inputs.openai_token }}' --model_name '${{ inputs.model_name }}' --max_tokens '${{ inputs.max_tokens }}' --log_level '${{ inputs.python_log_level }}' $FORCE_PUSH_FLAG
+
+  - name: Git Operations
     shell: bash
-    env:
-      GITHUB_TOKEN: ${{ inputs.github_token }}
-    run: python generate_files.py --branch_name '${{ inputs.branch_name }}' --descriptions '${{ inputs.descriptions }}' --openai_token '${{ inputs.openai_token }}' --model_name '${{ inputs.model_name }}' --max_tokens '${{ inputs.max_tokens }}' --log_level '${{ inputs.python_log_level }}'
+    run: |
+      FORCE_PUSH_FLAG=""
+      if [ "${{ inputs.force_push }}" = "true" ]; then
+        FORCE_PUSH_FLAG="--force"
+      fi
+
+      git config --global user.name "runner"
+      git config --global user.email "runner@example.com"
+      git checkout -b ${{ inputs.branch_name }}
+      git add .
+      git commit -m "${{ inputs.commit_message }}"
+      git push origin ${{ inputs.branch_name }} $FORCE_PUSH_FLAG

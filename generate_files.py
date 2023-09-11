@@ -4,7 +4,6 @@ import logging
 import os
 
 import openai
-from git import Repo
 
 
 def ensure_directory(file_path):
@@ -14,111 +13,122 @@ def ensure_directory(file_path):
     logging.info(f"Ensured directory for {file_path}.")
 
 
-def openai_call(prompt, model_name, max_tokens=300, role="user"):
+def validate_dict_output(raw_output):
+    logging.info("Validating dict:\n%s", str(raw_output))
+    try:
+        parsed_output = json.loads(raw_output)
+        if not isinstance(parsed_output, dict):
+            logging.error("Output is not a dictionary.")
+            return False, None
+        for key, value in parsed_output.items():
+            if not isinstance(key, str) or not isinstance(value, str):
+                logging.error(
+                    "Dictionary keys and/or values are not strings: %s, %s.",
+                    str(key),
+                    str(value),
+                )
+                return False, None
+        logging.info("Validation passed.")
+        return True, parsed_output
+    except json.JSONDecodeError:
+        logging.error("Failed to decode JSON.")
+        return False, None
+
+
+def openai_call(prompt, model_name, max_tokens=300):
+    logging.info("Running prompt with model: %s", model_name)
+    logging.debug("Using prompt:\n%s", prompt)
     messages = [
         {
             "role": "system",
             "content": "You are a script that helps set up a Repository with initial files.",
         },
-        {"role": role, "content": prompt},
+        {"role": "user", "content": prompt},
     ]
+    logging.debug("Using messages:\n%s", messages)
     response = openai.ChatCompletion.create(
         model=model_name, messages=messages, max_tokens=max_tokens
     )
-    logging.info("Retrieved result:\n%s", response)
-    message_content = response.choices[0].message["content"].strip()
-    logging.info("Returning message:\n%s", message_content)
-    return message_content
+    logging.debug(f"Retrieved result:\n{response}")
+    return response.choices[0].message["content"].strip()
 
 
-def generate_files(
-    branch_name: str,
-    descriptions: str,
-    openai_token: str,
-    model_name: str,
-    max_tokens: int,
-):
-    openai.api_key = openai_token
-
+def get_file_requirements_dict(descriptions, model_name, max_tokens):
     prompt_for_files = (
         "List the files and their specific directories and requirements for a"
-        f"production ready codebase using the following descriptions: {descriptions}."
+        f"production ready codebase using the following descriptions: '{descriptions}'."
+        "Stick to that description, don't add anything else. Use the minimum amount of required files."
+        "Make the minimum amount of assumptions about the rest of the repo."
         "Provide the information as a compact, JSON-formatted dictionary where the keys are file paths"
-        "(not directories, just paths!) and the values are lists of descriptions."
-        "Make sure the output is parseable by Python's json.loads."
+        "(not directories, just files!) and the values are the descriptions strings."
     )
-    files_and_requirements = json.loads(
-        openai_call(
-            prompt=prompt_for_files, model_name=model_name, max_tokens=max_tokens
+    raw_output = openai_call(prompt_for_files, model_name, max_tokens)
+    is_valid, files_and_requirements = validate_dict_output(raw_output)
+    if is_valid:
+        logging.debug(
+            f"Generated file and directory requirements: {files_and_requirements}"
         )
+    return is_valid, files_and_requirements
+
+
+def get_file_content(
+    file_path, file_descriptions, files_and_requirements, model_name, max_tokens
+):
+    prompt_for_content = (
+        "Here is a list of all files to be generated and their requirements:"
+        "\n-----------\n"
+        f" {json.dumps(files_and_requirements)}"
+        "\n-----------\n"
+        f"Create the file content of '{file_path}' from the following description: {file_descriptions}. "
+        "Only output the content for this specific file."
+        "Your output will be directly copied to the file, so you will output proper content,"
+        "no comments about it."
+        f"Content of the file '{file_path}':"
     )
-    logging.info(f"Generated file and directory requirements: {files_and_requirements}")
-
-    repo = Repo(".")
-
-    remote_url = repo.remotes.origin.url
-    new_url = remote_url.replace(
-        "https://", f"https://{os.getenv('GITHUB_TOKEN')}:x-oauth-basic@"
-    )
-    repo.remotes.origin.set_url(new_url)
-
-    logging.info("Remote URL set to: %s", repo.remotes.origin.url)
-
-    new_branch = repo.create_head(branch_name)
-    new_branch.checkout()
-    logging.info(f"Checked out new branch: {branch_name}")
-
-    for file_path, file_descriptions in files_and_requirements.items():
-        ensure_directory(file_path)
-
-        prompt_for_content = (
-            f"Here is a list of all files to be generated and their requirements: {json.dumps(files_and_requirements)}."
-            f"Create the file at path {file_path} with the following descriptions: {file_descriptions}. "
-            "Only output the content for this specific file."
-            "Your output will be directly copied to the file, so don't write anything beyond the file's content."
-        )
-
-        file_content = openai_call(
-            prompt=prompt_for_content, model_name=model_name, max_tokens=max_tokens
-        )
-        logging.info(f"Generated content for {file_path}.")
-
-        with open(file_path, "w") as f:
-            f.write(file_content)
-
-    repo.git.add(all=True)
-    repo.index.commit("Add generated CI/CD setup")
-    repo.git.push("origin", branch_name)
-    logging.info(f"Committed and pushed changes to {branch_name}")
+    file_content = openai_call(prompt_for_content, model_name, max_tokens)
+    logging.info(f"Generated content for {file_path}.")
+    return file_content
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate code using OpenAI API.")
-    parser.add_argument(
-        "--branch_name", default="ci-cd-setup", help="Name of the new branch."
-    )
-    parser.add_argument(
-        "--descriptions", required=True, help="Descriptions to inform the setup."
-    )
-    parser.add_argument("--openai_token", required=True, help="OpenAI API Token.")
-    parser.add_argument(
-        "--model_name", default="gpt-3.5-turbo-16k-0613", help="OpenAI model name."
-    )
-    parser.add_argument(
-        "--max_tokens", default=300, type=int, help="Max tokens for OpenAI API call."
-    )
-    parser.add_argument(
-        "--log_level", default="INFO", type=str, help="Set the log level."
-    )
+    parser.add_argument("--descriptions", required=True)
+    parser.add_argument("--openai_token", required=True)
+    parser.add_argument("--model_name", default="gpt-3.5-turbo-16k-0613")
+    parser.add_argument("--max_tokens", default=300, type=int)
+    parser.add_argument("--log_level", default="INFO", type=str)
+    parser.add_argument("--force_push", action="store_true", default=True)
 
     args = parser.parse_args()
-
     logging.basicConfig(level=args.log_level)
+    openai.api_key = args.openai_token
 
-    generate_files(
-        branch_name=args.branch_name,
-        descriptions=args.descriptions,
-        openai_token=args.openai_token,
-        model_name=args.model_name,
-        max_tokens=args.max_tokens,
+    is_valid, files_and_requirements = get_file_requirements_dict(
+        args.descriptions, args.model_name, args.max_tokens
     )
+
+    if not is_valid:
+        logging.error("Invalid file requirements dictionary. Exiting.")
+        exit(1)
+
+    for file_path, file_descriptions in files_and_requirements.items():
+        if ".github" in file_path:
+            logging.info("Replacing .github in %s", file_path)
+            file_path = file_path.replace(".github", "github")
+
+        if os.path.exists(file_path):
+            logging.warning(f"File {file_path} already exists. Skipping.")
+            continue
+
+        ensure_directory(file_path)
+        file_content = get_file_content(
+            file_path,
+            file_descriptions,
+            files_and_requirements,
+            args.model_name,
+            args.max_tokens,
+        )
+
+        with open(file_path, "w") as f:
+            logging.info("Writing to: %s", file_path)
+            f.write(file_content)

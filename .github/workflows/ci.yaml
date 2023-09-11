@@ -34,3 +34,9 @@ jobs:
     - name: Check semantic commits
       shell: bash
       run: gitlint --config .gitlint --commits ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}
+
+  test-action:
+    name: Test Action
+    needs: lint-and-format
+    uses: ./.github/workflows/test.yaml
+    secrets: inherit
