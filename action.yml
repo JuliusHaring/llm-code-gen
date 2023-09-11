@@ -1,6 +1,9 @@
 name: 'Generate Code'
 description: 'Generates files using OpenAI API'
 inputs:
+  github_token:
+    description: 'Token to push to the repo.'
+    required: true
   branch_name:
     description: 'Branch Name'
     required: false
@@ -19,9 +22,6 @@ inputs:
     description: 'Model Name'
     required: false
     default: 'gpt-3.5-turbo-16k-0613'
-  github_token:
-    description: 'Token to push to the repo.'
-    required: true
   max_tokens:
     description: 'Maximum tokens for OpenAI API call'
     required: false
@@ -57,7 +57,7 @@ runs:
   - name: Generate Files
     shell: bash
     env:
-      GITHUB_TOKEN: ${{ inputs.github_token }}
+      GH_TOKEN: ${{ inputs.github_token }}
     run: |
       FORCE_PUSH_FLAG=""
       if [ "${{ inputs.force_push }}" = "true" ]; then
