@@ -2,6 +2,19 @@
 
 
 
+## v0.3.0 (2023-09-11)
+
+### Feature
+
+* feat: add ability to create PR ([`82601b1`](https://github.com/JuliusHaring/llm-code-gen/commit/82601b1e5b4f0e484fe5b0baa8dea1d3f7d20697))
+
+### Unknown
+
+* Merge pull request #4 from JuliusHaring/create-pr
+
+feat: add ability to create PR ([`1a22bb6`](https://github.com/JuliusHaring/llm-code-gen/commit/1a22bb616c9eda59272af861e3aaabc7e03b523d))
+
+
 ## v0.2.0 (2023-09-11)
 
 ### Chore
