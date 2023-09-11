@@ -5,6 +5,10 @@ inputs:
     description: 'Branch Name'
     required: false
     default: 'llm-code-gen'
+  commit_message:
+    description: 'Commit Message'
+    required: false
+    default: 'feat: add llm-generated code'
   descriptions:
     description: 'Descriptions (comma-separated)'
     required: true
@@ -59,4 +63,4 @@ runs:
       if [ "${{ inputs.force_push }}" = "true" ]; then
         FORCE_PUSH_FLAG="--force_push"
       fi
-      python generate_files.py --branch_name '${{ inputs.branch_name }}' --descriptions '${{ inputs.descriptions }}' --openai_token '${{ inputs.openai_token }}' --model_name '${{ inputs.model_name }}' --max_tokens '${{ inputs.max_tokens }}' --log_level '${{ inputs.python_log_level }}' $FORCE_PUSH_FLAG
+      python generate_files.py --branch_name '${{ inputs.branch_name }}' --descriptions '${{ inputs.descriptions }}' --openai_token '${{ inputs.openai_token }}' --model_name '${{ inputs.model_name }}' --max_tokens '${{ inputs.max_tokens }}' --log_level '${{ inputs.python_log_level }}' --commit_message '${{ inputs.commit_message }}' $FORCE_PUSH_FLAG

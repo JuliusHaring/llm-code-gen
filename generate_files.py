@@ -84,7 +84,8 @@ def get_file_content(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate code using OpenAI API.")
-    parser.add_argument("--branch_name", default="ci-cd-setup")
+    parser.add_argument("--branch_name", default="llm-generated-code")
+    parser.add_argument("--commit_message", default="feat: add llm-generated code")
     parser.add_argument("--descriptions", required=True)
     parser.add_argument("--openai_token", required=True)
     parser.add_argument("--model_name", default="gpt-3.5-turbo-16k-0613")
@@ -125,5 +126,5 @@ if __name__ == "__main__":
             f.write(file_content)
 
     repo.git.add(all=True)
-    repo.index.commit("Add generated CI/CD setup")
+    repo.index.commit(args.commit_message)
     repo.git.push("origin", args.branch_name, "--force" if args.force_push else "")

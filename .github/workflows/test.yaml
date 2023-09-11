@@ -8,6 +8,7 @@ on:
       WORKFLOW_TOKEN:
         required: true
   workflow_dispatch:
+  push:
 
 jobs:
   test:
