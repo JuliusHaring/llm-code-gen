@@ -30,6 +30,10 @@ inputs:
     description: 'Log level used in the python script'
     required: true
     default: 'INFO'
+  force_push:
+    description: 'Enable force push to the remote branch'
+    required: false
+    default: 'true'
 
 runs:
   using: 'composite'
@@ -50,4 +54,9 @@ runs:
     shell: bash
     env:
       GITHUB_TOKEN: ${{ inputs.github_token }}
-    run: python generate_files.py --branch_name '${{ inputs.branch_name }}' --descriptions '${{ inputs.descriptions }}' --openai_token '${{ inputs.openai_token }}' --model_name '${{ inputs.model_name }}' --max_tokens '${{ inputs.max_tokens }}' --log_level '${{ inputs.python_log_level }}'
+    run: |
+      FORCE_PUSH_FLAG=""
+      if [ "${{ inputs.force_push }}" = "true" ]; then
+        FORCE_PUSH_FLAG="--force_push"
+      fi
+      python generate_files.py --branch_name '${{ inputs.branch_name }}' --descriptions '${{ inputs.descriptions }}' --openai_token '${{ inputs.openai_token }}' --model_name '${{ inputs.model_name }}' --max_tokens '${{ inputs.max_tokens }}' --log_level '${{ inputs.python_log_level }}' $FORCE_PUSH_FLAG

@@ -37,6 +37,7 @@ def generate_files(
     openai_token: str,
     model_name: str,
     max_tokens: int,
+    force_push: bool,
 ):
     openai.api_key = openai_token
 
@@ -88,7 +89,10 @@ def generate_files(
 
     repo.git.add(all=True)
     repo.index.commit("Add generated CI/CD setup")
-    repo.git.push("origin", branch_name)
+    if force_push:
+        repo.git.push("origin", branch_name, "--force")
+    else:
+        repo.git.push("origin", branch_name)
     logging.info(f"Committed and pushed changes to {branch_name}")
 
 
@@ -110,6 +114,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--log_level", default="INFO", type=str, help="Set the log level."
     )
+    parser.add_argument(
+        "--force_push",
+        action="store_true",
+        help="Enable force push to the remote branch.",
+        default=True
+    )
 
     args = parser.parse_args()
 
@@ -121,4 +131,5 @@ if __name__ == "__main__":
         openai_token=args.openai_token,
         model_name=args.model_name,
         max_tokens=args.max_tokens,
+        force_push=args.force_push,
     )
