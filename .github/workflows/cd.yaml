@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: # Adding a manual trigger
+  workflow_dispatch:
     inputs:
       release_type:
         description: 'Select release type'
@@ -17,20 +17,26 @@ on:
         - major
 
 jobs:
+  test-action:
+    uses: ./.github/workflows/test.yaml
+    secrets: inherit
 
   release:
     name: Semantic Release
+    needs: test-action
     runs-on: ubuntu-latest
     concurrency: release
     permissions:
       id-token: write
       contents: write
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: Python Semantic Release
-      uses: python-semantic-release/python-semantic-release@master
-      with:
-        github_token: ${{ secrets.WORKFLOW_TOKEN }}
-        force: ${{ github.event.inputs.release_type }}
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Python Semantic Release
+        uses: python-semantic-release/python-semantic-release@master
+        with:
+          github_token: ${{ secrets.WORKFLOW_TOKEN }}
+          force: ${{ github.event.inputs.release_type }}

@@ -1,13 +1,17 @@
 name: Test Action
 
 on:
-  push:
-    branches:
-      - main
+  workflow_call:
+    secrets:
+      OPENAI_API_TOKEN:
+        required: true
+      WORKFLOW_TOKEN:
+        required: true
   workflow_dispatch:
 
 jobs:
   test:
+    name: Test Action
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
