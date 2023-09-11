@@ -23,3 +23,4 @@ jobs:
         descriptions: 'linting and formatting for python with flake8 and black, using github actions'
         openai_token: ${{ secrets.OPENAI_API_TOKEN }}
         python_log_level: 'DEBUG'
+        dry_run: true
