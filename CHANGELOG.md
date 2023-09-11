@@ -2,6 +2,13 @@
 
 
 
+## v0.4.0 (2023-09-11)
+
+### Feature
+
+* feat: add pr configuration ([`8018784`](https://github.com/JuliusHaring/llm-code-gen/commit/80187841cb3302ac18d3058a00eb75442f90c253))
+
+
 ## v0.3.0 (2023-09-11)
 
 ### Feature
