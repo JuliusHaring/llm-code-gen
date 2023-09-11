@@ -1,9 +1,6 @@
 name: 'Generate Code'
 description: 'Generates files using OpenAI API'
 inputs:
-  github_token:
-    description: 'Token to push to the repo.'
-    required: true
   branch_name:
     description: 'Branch Name'
     required: false
@@ -39,6 +36,9 @@ inputs:
     required: false
     default: 'true'
 
+permissions:
+  workflows: write
+
 runs:
   using: 'composite'
   steps:
@@ -55,12 +55,21 @@ runs:
     run: pip install -r requirements.txt
 
   - name: Generate Files
+    shell: bash 
+    run: |
+      python generate_files.py --descriptions '${{ inputs.descriptions }}' --openai_token '${{ inputs.openai_token }}' --model_name '${{ inputs.model_name }}' --max_tokens '${{ inputs.max_tokens }}' --log_level '${{ inputs.python_log_level }}' $FORCE_PUSH_FLAG
+
+  - name: Git Operations
     shell: bash
-    env:
-      GH_TOKEN: ${{ inputs.github_token }}
     run: |
       FORCE_PUSH_FLAG=""
       if [ "${{ inputs.force_push }}" = "true" ]; then
-        FORCE_PUSH_FLAG="--force_push"
+        FORCE_PUSH_FLAG="--force"
       fi
-      python generate_files.py --branch_name '${{ inputs.branch_name }}' --descriptions '${{ inputs.descriptions }}' --openai_token '${{ inputs.openai_token }}' --model_name '${{ inputs.model_name }}' --max_tokens '${{ inputs.max_tokens }}' --log_level '${{ inputs.python_log_level }}' --commit_message '${{ inputs.commit_message }}' $FORCE_PUSH_FLAG
+
+      git config --global user.name "runner"
+      git config --global user.email "runner@example.com"
+      git checkout -b ${{ inputs.branch_name }}
+      git add .
+      git commit -m "${{ inputs.commit_message }}"
+      git push origin ${{ inputs.branch_name }} $FORCE_PUSH_FLAG

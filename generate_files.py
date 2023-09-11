@@ -4,7 +4,6 @@ import logging
 import os
 
 import openai
-from git import Repo
 
 
 def ensure_directory(file_path):
@@ -93,8 +92,6 @@ def get_file_content(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate code using OpenAI API.")
-    parser.add_argument("--branch_name", default="llm-generated-code")
-    parser.add_argument("--commit_message", default="feat: add llm-generated code")
     parser.add_argument("--descriptions", required=True)
     parser.add_argument("--openai_token", required=True)
     parser.add_argument("--model_name", default="gpt-3.5-turbo-16k-0613")
@@ -106,9 +103,6 @@ if __name__ == "__main__":
     logging.basicConfig(level=args.log_level)
     openai.api_key = args.openai_token
 
-    repo = Repo(".")
-    repo.create_head(args.branch_name).checkout()
-
     is_valid, files_and_requirements = get_file_requirements_dict(
         args.descriptions, args.model_name, args.max_tokens
     )
@@ -118,6 +112,10 @@ if __name__ == "__main__":
         exit(1)
 
     for file_path, file_descriptions in files_and_requirements.items():
+        if ".github" in file_path:
+            logging.info("Replacing .github in %s", file_path)
+            file_path = file_path.replace(".github", "github")
+
         if os.path.exists(file_path):
             logging.warning(f"File {file_path} already exists. Skipping.")
             continue
@@ -132,11 +130,5 @@ if __name__ == "__main__":
         )
 
         with open(file_path, "w") as f:
+            logging.info("Writing to: %s", file_path)
             f.write(file_content)
-
-    logging.info("Adding files to git.")
-    repo.git.add(all=True)
-    logging.info("Committing files.")
-    repo.index.commit(args.commit_message)
-    logging.info("Pushing files.")
-    repo.git.push("origin", args.branch_name, "--force" if args.force_push else "")

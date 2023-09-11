@@ -39,5 +39,5 @@ jobs:
       - name: Python Semantic Release
         uses: python-semantic-release/python-semantic-release@master
         with:
-          github_token: ${{ secrets.WORKFLOW_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           force: ${{ github.event.inputs.release_type }}

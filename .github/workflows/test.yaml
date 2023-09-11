@@ -5,8 +5,6 @@ on:
     secrets:
       OPENAI_API_TOKEN:
         required: true
-      WORKFLOW_TOKEN:
-        required: true
   workflow_dispatch:
 
 jobs:
@@ -20,8 +18,8 @@ jobs:
     - name: Run Action Test
       uses: ./
       with:
+        pat: ${{ secrets.PAT }}
         branch_name: 'test-ci-setup'
         descriptions: 'linting and formatting for python with flake8 and black, using github actions'
         openai_token: ${{ secrets.OPENAI_API_TOKEN }}
-        github_token: ${{ secrets.WORKFLOW_TOKEN }}
         python_log_level: 'DEBUG'
