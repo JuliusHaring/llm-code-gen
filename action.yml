@@ -1,4 +1,4 @@
-name: 'Generate Code'
+name: 'OpenAI Code Gen'
 description: 'Generates files using OpenAI API'
 inputs:
   descriptions:
