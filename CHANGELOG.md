@@ -2,6 +2,47 @@
 
 
 
+## v0.2.0 (2023-09-11)
+
+### Chore
+
+* chore: adjust debugging ([`d43ffe4`](https://github.com/JuliusHaring/llm-code-gen/commit/d43ffe439c83e7e35ae3a58ebad4cc7d533f33b1))
+
+* chore: adjust prompt ([`efa359b`](https://github.com/JuliusHaring/llm-code-gen/commit/efa359b6cddc670550fb3f33e3d0aafb29936d96))
+
+* chore: adjust prompt ([`8f697e7`](https://github.com/JuliusHaring/llm-code-gen/commit/8f697e7cca0a2662a4896c64967aa27a0e68d3f1))
+
+### Ci
+
+* ci: add test to ci script ([`69181a1`](https://github.com/JuliusHaring/llm-code-gen/commit/69181a110f1c2f61feba26d1e61ec73b6d8739bc))
+
+* ci: add test to cd ([`8af0262`](https://github.com/JuliusHaring/llm-code-gen/commit/8af0262d2ecc96286f66b8e95aa468b38270600a))
+
+### Feature
+
+* feat: add custom commit msg ([`43cbce9`](https://github.com/JuliusHaring/llm-code-gen/commit/43cbce9e76b6558024d65db236dd90abdc8810ee))
+
+* feat: introduce retries and dict validation ([`ab3982b`](https://github.com/JuliusHaring/llm-code-gen/commit/ab3982b7a44247920add6ae402cd92fb31dd5bce))
+
+* feat: add force push option ([`f8a34ab`](https://github.com/JuliusHaring/llm-code-gen/commit/f8a34abefafae0ff462b2c6ad7f5a7674c4167b9))
+
+### Fix
+
+* fix: update gh token env variable ([`5d0e966`](https://github.com/JuliusHaring/llm-code-gen/commit/5d0e966d37094d161d9f6acd058ed737345be115))
+
+### Refactor
+
+* refactor: outsource git logic to action ([`7eeae97`](https://github.com/JuliusHaring/llm-code-gen/commit/7eeae97d80cf872f18b150047728143fcf3da101))
+
+* refactor: outsource codes to functions ([`1210aef`](https://github.com/JuliusHaring/llm-code-gen/commit/1210aef250b34ab7279f3796b5c289ee75b6c751))
+
+### Unknown
+
+* Merge pull request #2 from JuliusHaring/py-enhancements
+
+Py enhancements ([`a5183d9`](https://github.com/JuliusHaring/llm-code-gen/commit/a5183d9d0878600b82409ecabd00eb3688361a70))
+
+
 ## v0.1.0 (2023-09-10)
 
 ### Ci
