@@ -27,7 +27,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Run Action Test
+    - name: Run Action
       uses: ./
       with:
         branch_name: ${{ github.event.inputs.branch_name || 'test-ci-setup' }}
