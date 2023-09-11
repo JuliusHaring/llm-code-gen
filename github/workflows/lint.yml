@@ -1,0 +1,49 @@
+name: Python linting
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black
+
+      - name: Lint code
+        run: |
+          flake8 .
+          black --check .
+
+      - name: Log lint errors
+        run: |
+          flake8 . | tee lint_errors.txt
+
+      - name: Commit lint errors
+        run: |
+          git config --global user.name "Lint Bot"
+          git config --global user.email "lintbot@example.com"
+          git add lint_errors.txt
+          git commit -m "Add lint errors" || true
+          git push origin HEAD:main
+
+This workflow file sets up a job named "lint" that runs on every push and pull request to the main branch. The job checks out the code, sets up a Python environment, installs the required dependencies (flake8 and black), and then runs the linting and formatting commands.
+
+The linting errors are logged to a
