@@ -15,6 +15,7 @@ def ensure_directory(file_path):
 
 
 def validate_dict_output(raw_output):
+    logging.info("Validating dict:\n%s", str(raw_output))
     try:
         parsed_output = json.loads(raw_output)
         if not isinstance(parsed_output, dict):
@@ -28,6 +29,7 @@ def validate_dict_output(raw_output):
                     str(value),
                 )
                 return False, None
+        logging.info("Validation passed.")
         return True, parsed_output
     except json.JSONDecodeError:
         logging.error("Failed to decode JSON.")
@@ -35,6 +37,8 @@ def validate_dict_output(raw_output):
 
 
 def openai_call(prompt, model_name, max_tokens=300):
+    logging.info("Running prompt with model: %s", model_name)
+    logging.debug("Using prompt:\n%s", prompt)
     messages = [
         {
             "role": "system",
@@ -42,10 +46,11 @@ def openai_call(prompt, model_name, max_tokens=300):
         },
         {"role": "user", "content": prompt},
     ]
+    logging.debug("Using messages:\n%s", messages)
     response = openai.ChatCompletion.create(
         model=model_name, messages=messages, max_tokens=max_tokens
     )
-    logging.info(f"Retrieved result:\n{response}")
+    logging.debug(f"Retrieved result:\n{response}")
     return response.choices[0].message["content"].strip()
 
 
@@ -56,12 +61,12 @@ def get_file_requirements_dict(descriptions, model_name, max_tokens):
         "Stick to that description, don't add anything else. Use the minimum amount of required files."
         "Make the minimum amount of assumptions about the rest of the repo."
         "Provide the information as a compact, JSON-formatted dictionary where the keys are file paths"
-        "(not directories, just paths!) and the values are the descriptions strings."
+        "(not directories, just files!) and the values are the descriptions strings."
     )
     raw_output = openai_call(prompt_for_files, model_name, max_tokens)
     is_valid, files_and_requirements = validate_dict_output(raw_output)
     if is_valid:
-        logging.info(
+        logging.debug(
             f"Generated file and directory requirements: {files_and_requirements}"
         )
     return is_valid, files_and_requirements
@@ -72,11 +77,14 @@ def get_file_content(
 ):
     prompt_for_content = (
         "Here is a list of all files to be generated and their requirements:"
-        f" {json.dumps(files_and_requirements)}."
+        "\n-----------\n"
+        f" {json.dumps(files_and_requirements)}"
+        "\n-----------\n"
         f"Create the file content of '{file_path}' from the following description: {file_descriptions}. "
         "Only output the content for this specific file."
         "Your output will be directly copied to the file, so you will output proper content,"
         "no comments about it."
+        f"Content of the file '{file_path}':"
     )
     file_content = openai_call(prompt_for_content, model_name, max_tokens)
     logging.info(f"Generated content for {file_path}.")
@@ -126,6 +134,9 @@ if __name__ == "__main__":
         with open(file_path, "w") as f:
             f.write(file_content)
 
+    logging.info("Adding files to git.")
     repo.git.add(all=True)
+    logging.info("Committing files.")
     repo.index.commit(args.commit_message)
+    logging.info("Pushing files.")
     repo.git.push("origin", args.branch_name, "--force" if args.force_push else "")
