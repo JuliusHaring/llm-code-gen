@@ -54,6 +54,7 @@ def get_file_requirements_dict(descriptions, model_name, max_tokens):
         "List the files and their specific directories and requirements for a"
         f"production ready codebase using the following descriptions: '{descriptions}'."
         "Stick to that description, don't add anything else. Use the minimum amount of required files."
+        "Make the minimum amount of assumptions about the rest of the repo."
         "Provide the information as a compact, JSON-formatted dictionary where the keys are file paths"
         "(not directories, just paths!) and the values are the descriptions strings."
     )

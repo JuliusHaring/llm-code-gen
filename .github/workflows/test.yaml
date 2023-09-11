@@ -21,6 +21,6 @@ jobs:
       uses: ./
       with:
         branch_name: 'test-ci-setup'
-        descriptions: 'linting and formatting for python with ruff'
+        descriptions: 'linting and formatting for python with flake8 and black'
         openai_token: ${{ secrets.OPENAI_API_TOKEN }}
         github_token: ${{ secrets.WORKFLOW_TOKEN }}
