@@ -1,0 +1,24 @@
+name: Lint and Format  
+on:
+  push:
+    branches:
+      - main  
+  pull_request:
+    branches:
+      - main  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2  
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x  
+      - name: Install dependencies
+        run: pip install flake8 black  
+      - name: Lint code
+        run: flake8 .
+      - name: Format code
+        run: black .
