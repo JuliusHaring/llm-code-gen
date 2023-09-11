@@ -38,5 +38,5 @@ jobs:
   test-action:
     name: Test Action
     needs: lint-and-format
-    uses: ./.github/workflows/test.yaml
+    uses: ./.github/workflows/run-action.yaml
     secrets: inherit

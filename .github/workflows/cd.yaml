@@ -19,7 +19,7 @@ on:
 jobs:
   test-action:
     name: Test Action
-    uses: ./.github/workflows/test.yaml
+    uses: ./.github/workflows/run-action.yaml
     secrets: inherit
 
   release:

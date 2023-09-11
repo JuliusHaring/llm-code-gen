@@ -1,0 +1,37 @@
+name: Run Action
+
+on:
+  workflow_call:
+    secrets:
+      OPENAI_API_TOKEN:
+        required: true
+  workflow_dispatch:
+    inputs:
+      descriptions:
+        description: 'Descriptions based on which code files are to be generated'
+        required: true
+      branch_name:
+        description: 'The name of the branch where generated files will be pushed'
+        required: false
+        default: 'test-ci-setup'
+      dry_run:
+        description: 'Perform a dry run without pushing or creating a PR'
+        required: false
+        default: true
+
+jobs:
+  test:
+    name: Run Action
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Action Test
+      uses: ./
+      with:
+        branch_name: ${{ github.event.inputs.branch_name || 'test-ci-setup' }}
+        descriptions: ${{ github.event.inputs.descriptions || 'linting for python with github actions' }}
+        openai_token: ${{ secrets.OPENAI_API_TOKEN }}
+        python_log_level: 'DEBUG'
+        dry_run: ${{ github.event.inputs.dry_run || true }}
