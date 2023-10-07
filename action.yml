@@ -10,7 +10,7 @@ inputs:
   model_name:
     description: 'Model Name'
     required: false
-    default: 'gpt-3.5-turbo-16k-0613'
+    default: 'gpt-3.5-turbo'
   max_tokens:
     description: 'Maximum tokens for OpenAI API call'
     required: false
